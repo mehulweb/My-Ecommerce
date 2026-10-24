@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../services/api";
+import toast from "react-hot-toast";
 
 export default function SellerSignUp() {
   const [form, setForm] = useState({
@@ -41,9 +42,13 @@ export default function SellerSignUp() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    api.post("/seller/register", {form})
+   const res = api.post("/seller/register", {form})
 
-    .then(()  => setSubmitted(true))
+    if(res.status === 200){
+        toast.success(("Seller account created successfully"), {duration: 1000});
+    }else{
+        toast.error(("Failed to create seller account"), {duration: 1000});
+    }
 
     const errs = validate();
     if (Object.keys(errs).length > 0) {

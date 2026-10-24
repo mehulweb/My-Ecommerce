@@ -58,7 +58,7 @@ export const verifyOtp = async (req, res) => {
 
         res.cookie("token", token)
 
-        res.status(201).json({ message: "User registered successfully", token });
+        res.status(200).json({ message: "User registered successfully", token });
 
         await emailservice.sendRegistrationEmail(email, user.username);
 
@@ -112,7 +112,7 @@ export const userLogout = async (req, res) => {
 export const getUserProfile = async (req, res) => {
 
     try {
-        const userId = await req.userId;
+        const userId = await req.userId.userId
         const user = await UserModel.findById(userId);
         res.status(200).json({ user });
     } catch (error) {

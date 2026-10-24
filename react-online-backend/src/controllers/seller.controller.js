@@ -1,6 +1,5 @@
 import SellerModel from "../model/seller.model.js";
 import bcrypt from 'bcryptjs';
-import ImageKit from "@imagekit/nodejs";
 import jwt from "jsonwebtoken";
 import ProductModel from "../model/product.model.js";
 import mongoose from "mongoose";
@@ -103,7 +102,7 @@ export const getSellerDashboard = async (req, res) => {
 
         try{
             if (!sellerOdjectId) {
-                return res.status(400).json({ message: "Seller ID is required" });
+                return res.status(400).json({ message: "Unarthorised" });
             }
 
             const products = await ProductModel.find({ sellerObjectId: sellerOdjectId });
@@ -117,6 +116,8 @@ export const getSellerDashboard = async (req, res) => {
             if(!newOrders) {
                 return res.status(404).json({ message: "No new orders found for this seller" });
             }
+
+            const totalOrders = await Order.countDocuments({sellerId: sellerId});            
 
             const monthlyRevenue = await Order.aggregate([
                 {
@@ -140,7 +141,7 @@ export const getSellerDashboard = async (req, res) => {
                 return res.status(404).json({ message: "No revenue data found for this seller" });
             }
 
-            res.status(200).json({ message: "Products fetched successfully", products, newOrders, monthlyRevenue });
+            res.status(200).json({ message: "Products fetched successfully", products, totalOrders, newOrders, monthlyRevenue });
 
         }catch (err){
             console.error("Error fetching products:", err);
@@ -161,27 +162,27 @@ export const deleteSeller = async (req, res) => {
     }
 }
 
-// export const newOrder = async (req, res) => {
+export const newOrder = async (req, res) => {
 
-//     const sellerId = await req.params.sellerId;
+    const sellerId = await req.sellerId.id;
 
-//     try {
-//         const orders = await Order.find({ sellerId: sellerId });
+    try {
+        const orders = await Order.find({ sellerId: sellerId });
 
-//         if (!orders) {
-//             return res.status(404).json({ message: "No orders found for this seller" });
-//         }
+        if (!orders) {
+            return res.status(404).json({ message: "No orders found for this seller" });
+        }
 
-//         if (orders.some(order => order.sellerConfirmation === "pending" || order.sellerConfirmation === "confirmed" || order.sellerConfirmation === "shipped" || order.sellerConfirmation === "delivered" || order.sellerConfirmation === "cancelled")) {
-//             res.status(200).json({ message: "Orders fetched successfully", orders });
-//         }
+        if (orders.some(order => order.sellerConfirmation === "pending" || order.sellerConfirmation === "confirmed" || order.sellerConfirmation === "shipped" || order.sellerConfirmation === "delivered" || order.sellerConfirmation === "cancelled")) {
+            res.status(200).json({ message: "Orders fetched successfully", orders });
+        }
 
-//     } catch (error) {
-//         console.error("Error fetching orders:", error);
-//         res.status(500).json({ message: "Error fetching orders" });
-//     }
+    } catch (error) {
+        console.error("Error fetching orders:", error);
+        res.status(500).json({ message: "Error fetching orders" });
+    }
     
-// }
+}
 
 export const updateSellerOrderStatus = async (req, res) => {
     try {

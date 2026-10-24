@@ -118,10 +118,10 @@ const Navbar = () => {
                   onMouseEnter={() => setShowDropDown(!showDropDown)}
                 />
                 {showDropDown && (
-                  <ul className="absolute top-full right-0 me-5 w-30 flex flex-col justify-center items-center hover:cursor-pointer absolute overflow-hidden rounded-lg shadow-lg top-5 right-0 bg-gray-50 text-black ">
+                  <ul className="absolute w-30 flex flex-col justify-center items-center hover:cursor-pointer overflow-hidden rounded-lg shadow-lg me-5 top-3 left-8 bg-gray-50 text-black ">
                     <li
                       className="px-5 py-1 mb-1 hover:bg-gray-200 flex items-center gap-1"
-                      onClick={() => Navigate(`/profile/${param.id}`)}
+                      onClick={() => Navigate(`/profile`)}
                     >
                       <VscAccount /> Profile
                     </li>
@@ -163,7 +163,7 @@ const Navbar = () => {
                   `flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
                     isActive
                       ? "bg-red-50 border-red-200 text-red-600"
-                      : "border-gray-200 text-gray-700 hover:border-red-200 hover:text-red-500 hover:bg-red-50"
+                      : "border-gray-200 text-gray-700 hover:border-red-200 hover:text-black hover:bg-red-50"
                   }`
                 }
               >
@@ -177,7 +177,7 @@ const Navbar = () => {
                   `flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
                     isActive
                       ? "bg-red-50 border-red-200 text-red-600"
-                      : "border-gray-200 text-gray-700 hover:border-red-200 hover:text-red-500 hover:bg-red-50"
+                      : "border-gray-200 text-gray-700 hover:border-red-200 hover:text-black hover:bg-red-50"
                   }`
                 }
               >
@@ -191,7 +191,7 @@ const Navbar = () => {
                   `flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
                     isActive
                       ? "bg-red-50 border-red-200 text-red-600"
-                      : "border-gray-200 text-gray-700 hover:border-red-200 hover:text-red-500 hover:bg-red-50"
+                      : "border-gray-200 text-gray-700 hover:border-red-200 hover:text-black hover:bg-red-50"
                   }`
                 }
               >

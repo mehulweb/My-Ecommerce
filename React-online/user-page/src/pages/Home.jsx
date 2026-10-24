@@ -8,7 +8,7 @@ const Home = () => {
   return (
     <div>
       <Navbar/>
-      <div className="grid grid-cols-5 h-screen flex flex-wrap items-start p-16 justify-start gap-7 ">
+      <div className="w-full h-screen flex flex-wrap items-start p-16 justify-start gap-7 ">
         <Card />
       </div>
     </div>

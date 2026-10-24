@@ -18,6 +18,7 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
 
@@ -61,11 +62,9 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-[#f5f6f8] flex flex-col">
-
       {/* Navbar */}
       <nav className="bg-purple-500 border-b border-gray-200">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8">
-
           <Link to="/" className="flex items-center gap-2">
             <div className="rounded-xl bg-black p-2 text-white">
               <ShoppingBag size={25} />
@@ -87,12 +86,9 @@ const Signup = () => {
 
       {/* Main Content */}
       <main className="flex flex-1 items-center justify-center px-4 py-8 sm:px-6">
-
         <div className="grid w-full max-w-5xl grid-cols-1 overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-xl shadow-gray-200/70 md:grid-cols-2">
-
           {/* Left Banner */}
           <div className="relative flex min-h-[300px] flex-col justify-between overflow-hidden bg-gradient-to-br from-purple-500 via-purple-500 to-purple-400 p-8 text-white sm:p-12 md:min-h-[620px]">
-
             <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full border-[35px] border-white/10" />
             <div className="absolute -bottom-20 -left-16 h-64 w-64 rounded-full bg-yellow-300/20 blur-2xl" />
 
@@ -106,21 +102,18 @@ const Signup = () => {
                 <br />
                 made simple.
                 <br />
-                <span className="text-yellow-100">
-                  Life made better.
-                </span>
+                <span className="text-yellow-100">Life made better.</span>
               </h1>
 
               <p className="mt-5 max-w-sm text-base leading-7 text-orange-50">
-                Create your account and discover products
-                you'll love, all in one place.
+                Create your account and discover products you'll love, all in
+                one place.
               </p>
             </div>
 
             {/* Shopping Icon */}
             <div className="relative z-10 my-8 flex justify-center">
               <div className="relative flex h-44 w-44 items-center justify-center rounded-full border border-white/20 bg-white/15 backdrop-blur-sm sm:h-52 sm:w-52">
-
                 <div className="absolute inset-4 rounded-full border border-dashed border-white/40" />
 
                 <ShoppingBag
@@ -141,7 +134,6 @@ const Signup = () => {
 
             {/* Benefits */}
             <div className="relative z-10 grid grid-cols-3 gap-3 border-t border-white/25 pt-6">
-
               <div>
                 <Truck size={22} className="mb-2" />
                 <p className="text-sm font-bold">Fast Delivery</p>
@@ -159,15 +151,12 @@ const Signup = () => {
                 <p className="text-sm font-bold">Support</p>
                 <p className="mt-1 text-xs text-orange-100">Here to help</p>
               </div>
-
             </div>
           </div>
 
           {/* Signup Form */}
           <div className="flex items-center justify-center p-6 sm:p-10 lg:p-12">
-
             <div className="w-full max-w-md">
-
               <div className="mb-7">
                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-black text-white shadow-lg shadow-orange-500/20">
                   <UserRound size={25} />
@@ -183,7 +172,6 @@ const Signup = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-
                 {/* Username */}
                 <div>
                   <label
@@ -194,7 +182,6 @@ const Signup = () => {
                   </label>
 
                   <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 transition focus-within:border-gray-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-500/10">
-
                     <UserRound size={19} className="shrink-0 text-gray-400" />
 
                     <input
@@ -220,7 +207,6 @@ const Signup = () => {
                   </label>
 
                   <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 transition focus-within:border-gray-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-500/10">
-
                     <Mail size={19} className="shrink-0 text-gray-400" />
 
                     <input
@@ -237,7 +223,7 @@ const Signup = () => {
                 </div>
 
                 {/* Password */}
-                <div>
+                <div classNmame="relative">
                   <label
                     htmlFor="password"
                     className="mb-2 block text-sm font-semibold text-gray-700"
@@ -246,12 +232,11 @@ const Signup = () => {
                   </label>
 
                   <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 transition focus-within:border-gray-400 focus-within:bg-white focus-within:ring-4 focus-within:ring-gray-500/10">
-
                     <LockKeyhole size={19} className="shrink-0 text-gray-400" />
 
                     <input
                       id="password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Create a password"
@@ -261,6 +246,14 @@ const Signup = () => {
                       required
                       className="h-12 w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400"
                     />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="right-3 top-10 text-gray-500 hover:text-gray-700"
+                    >
+                      {showPassword ? "👁️" : "👁️‍🗨️"}
+                    </button>
                   </div>
 
                   <p className="mt-2 text-xs text-gray-400">
@@ -304,7 +297,6 @@ const Signup = () => {
                   ← Back to shopping
                 </Link>
               </div>
-
             </div>
           </div>
         </div>

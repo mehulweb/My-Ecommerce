@@ -6,7 +6,7 @@ const Dashboard = () => {
   return (
     <div className=''>
       <Navbar/>
-      <div className="grid grid-cols-5 h-screen flex items-start p-16 justify-start gap-5 ">
+      <div className="w-full h-full flex items-start p-16 justify-center gap-5 ">
         <Card />
       </div>
     </div>

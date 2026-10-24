@@ -18,11 +18,8 @@ export default function SellerDashboard() {
   const [profile, setProfile] = useState({});
 
   const [dashboard, setDashboard] = useState({
-    totalProducts: 0,
-    totalStock: 0,
-    ordersToday: 0,
     monthlyRevenue: 0,
-    totalOrders: 0,
+    newOrders: [],
     products: [],
   });
 
@@ -48,18 +45,13 @@ export default function SellerDashboard() {
   };
 }, [param.id]);
 
-  useEffect(() => {
-    fetchProfile();
-    fetchDashboard();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
-      const res = await api.get(`/seller/seller-profile/${param.id}`);
-
-      console.log("Profile:", res.data);
-
-      setProfile(res.data);
+const fetchProfile = async () => {
+  try {
+    const res = await api.get(`/seller/seller-profile/${param.id}`);
+    
+    console.log("Profile:", res.data);
+    
+    setProfile(res.data);
     } catch (error) {
       console.error("Profile API Error:", error);
     }
@@ -68,41 +60,51 @@ export default function SellerDashboard() {
   const fetchDashboard = async () => {
     try {
       const res = await api.get(`/seller/products/${param.id}`);
-
+      
       console.log("Dashboard:", res.data);
-
+      
       setDashboard(res.data);
     } catch (error) {
       console.error("Dashboard API Error:", error);
     }
   };
-
+  
+    useEffect(() => {
+      fetchProfile();
+      fetchDashboard();
+    }, []);
+  
   console.log("Dashboard State:", dashboard);
+  console.log("Dashboard State:", dashboard.products.length);
 
   const stats = [
     {
       label: "Total Products",
       value: dashboard.products.length,
       icon: "📦",
-      change: `${dashboard.totalStock} units in stock`,
+      change: `${dashboard.products.length} units in stock`,
+      path: `/my-products/${param.id}`,
     },
     {
-      label: "Orders Today",
-      value: dashboard.newOrders,
+      label: "New Orders",
+      value: dashboard.newOrders.length,
       icon: "🛒",
       change: "Today's orders",
+      path: '/seller/orders',
     },
     {
       label: "Revenue",
       value: `₹${dashboard.monthlyRevenue?.toLocaleString("en-IN")}`,
       icon: "💰",
       change: "This month",
+      path: null,
     },
     {
       label: "Total Orders",
       value: dashboard.totalOrders,
       icon: "⭐",
       change: "Overall orders",
+      path: null,
     },
   ];
 
@@ -299,6 +301,11 @@ export default function SellerDashboard() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {stats.map((s) => (
             <div
+            onClick={() => {
+              if(s.path){
+                navigate(s.path)
+              }
+            }}
               key={s.label}
               className="bg-white rounded-2xl border border-stone-100 p-4 hover:shadow-sm transition"
             >
@@ -356,12 +363,12 @@ export default function SellerDashboard() {
 
                     <span
                       className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                        statusStyle[p.status]
+                        statusStyle[p.stock <= '5' ? "active" : p.stock >= '5' ? "low" : "out"]
                       }`}
                     >
-                      {p.status === "active"
+                      {p.stock <= '5'
                         ? "Active"
-                        : p.status === "low"
+                        : p.stock >= '5'
                           ? "Low stock"
                           : "Out of stock"}
                     </span>

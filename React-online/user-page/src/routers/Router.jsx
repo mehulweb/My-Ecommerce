@@ -86,7 +86,7 @@ export const Routers = createBrowserRouter([
         element: <Sellerbody />,
       },
       {
-        path: "/seller/orders/:id",
+        path: "/seller/orders",
         element: <SellerOrders />,
       },
       {
