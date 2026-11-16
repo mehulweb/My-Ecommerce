@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ShoppingBag, ArrowRight, Star, Package } from "lucide-react";
 import api from "../services/api";
 import { useCart } from "../context/CartContext";
-import toast from "react-hot-toast";
+
 
 const Card = () => {
   const [products, setProducts] = useState([]);
@@ -56,7 +56,7 @@ const Card = () => {
     <div className="w-4/4 flex items-center flex-wrap gap-3 p-10">
 
       {products.map((product) => {
-        const outOfStock =
+        const outOfStock = 
           product.stock !== undefined &&
           Number(product.stock) <= 0;
 
@@ -154,7 +154,6 @@ const Card = () => {
                 type="button"
                 disabled={outOfStock}
                 onClick={() => {
-                  toast.success(`${product.name} added to cart!`, { duration: 500 });
                   addCart(product);
                 }}
                 className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-orange-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none"

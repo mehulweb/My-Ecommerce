@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext";
 import {
   ShoppingBag,
   ArrowLeft,
@@ -13,43 +12,122 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
+import api from "../services/api";
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { cartItems, setCartItems } = useCart();
 
-  const items = Array.isArray(cartItems) ? cartItems : [];
+  const [item, setItem] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [checkingOut, setCheckingOut] = useState(false);
 
-  const updateQuantity = (id, type) => {
-    setCartItems((currentItems) =>
-      currentItems.map((item) => {
-        if (item._id !== id) return item;
+  // Fetch user's cart
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const res = await api.get("/cart/getCartItems");
 
-        const quantity = Number(item.quantity) || 1;
-        const hasStock =
-          item.stock !== undefined && item.stock !== null;
-        const stock = Number(item.stock);
+        if (res.data.success) {
+          setItem(res.data.cart?.items || []);
+        }
+      } catch (error) {
+        console.log("Fetch cart error:", error.response?.data || error);
+        toast.error("Unable to load cart");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        const newQuantity =
+    fetchCart();
+  }, []);
+
+  const items = Array.isArray(item) ? item : [];
+
+  // Update product quantity
+  const updateQuantity = async (productId, type) => {
+    try {
+      const cartItem = items.find(
+        (item) => item.product?._id === productId
+      );
+
+      if (!cartItem) return;
+
+      const quantity = Number(cartItem.quantity) || 1;
+
+      const hasStock =
+        cartItem.product.stock !== undefined &&
+        cartItem.product.stock !== null;
+
+      const stock = Number(cartItem.product.stock);
+
+      const newQuantity =
+        type === "increase"
+          ? hasStock
+            ? Math.min(quantity + 1, stock)
+            : quantity + 1
+          : Math.max(quantity - 1, 1);
+
+      if (newQuantity === quantity) {
+        toast.error(
           type === "increase"
-            ? hasStock
-              ? Math.min(quantity + 1, stock)
-              : quantity + 1
-            : Math.max(quantity - 1, 1);
+            ? "Maximum stock reached"
+            : "Minimum quantity is 1"
+        );
+        return;
+      }
 
-        return { ...item, quantity: newQuantity };
-      })
-    );
+      const res = await api.patch("/cart/updateCart", {
+        productId,
+        quantity: newQuantity,
+      });
+
+      if (res.data.success) {
+        setItem(res.data.cart.items);
+      }
+    } catch (error) {
+      console.log(
+        "Update quantity error:",
+        error.response?.data || error
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+          "Unable to update quantity"
+      );
+    }
   };
 
-  const removeItem = (id) => {
-    setCartItems((currentItems) =>
-      currentItems.filter((item) => item._id !== id)
-    );
+  // Remove product from cart
+  const removeItem = async (id) => {
+    try {
+      const res = await api.delete(`/cart/deleteCartItem/${id}`);
+
+      if (res.data.success) {
+        setItem((prevItems) =>
+          prevItems.filter(
+            (item) => item.product?._id !== id
+          )
+        );
+
+        toast.success("Item removed from cart");
+      }
+    } catch (error) {
+      console.log(
+        "Remove cart error:",
+        error.response?.data || error
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to remove item"
+      );
+    }
   };
 
+  // Calculate subtotal
   const subtotal = items.reduce((total, item) => {
-    const price = Number(item.price) || 0;
+    const price = Number(item.product?.price) || 0;
     const quantity = Number(item.quantity) || 1;
 
     return total + price * quantity;
@@ -59,22 +137,50 @@ const Cart = () => {
   const total = subtotal + delivery;
   const remaining = Math.max(500 - subtotal, 0);
 
-  const isLogin = () => {
-      const token = document.cookie.split("; ").find((row) => row.startsWith("token="));
-      
-      if (token) {
-          navigate(`/address/${token.split("=")[1]}`);
-      } else {
-          toast.error("Please log in to proceed to checkout.", {duration: 800});
+  // Checkout
+  const isLogin = async () => {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("token="));
+
+    if (!token) {
+      toast.error("Please login to proceed to checkout.");
+      return;
+    }
+
+    try {
+      setCheckingOut(true);
+      const { data } = await api.post("/orders/checkout/init", {
+        source: "cart",
+      });
+
+      if (data.success) {
+        navigate(`/address/${data.checkoutId}`);
       }
-}
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Unable to proceed to checkout"
+      );
+    } finally {
+      setCheckingOut(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f7f8]">
+        <p className="font-semibold text-gray-500">
+          Loading your cart...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f7f7f8]">
-
       {/* Navbar */}
       <nav className="sticky top-0 z-20 border-b border-gray-200 bg-white">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-
           <Link to="/" className="flex items-center gap-2">
             <div className="rounded-xl bg-orange-500 p-2 text-white">
               <ShoppingBag size={23} />
@@ -93,7 +199,6 @@ const Cart = () => {
       </nav>
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 lg:px-8">
-
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
@@ -127,7 +232,6 @@ const Cart = () => {
         {/* Empty Cart */}
         {items.length === 0 ? (
           <div className="flex min-h-[420px] flex-col items-center justify-center rounded-3xl border border-gray-100 bg-white px-5 py-12 text-center shadow-sm">
-
             <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-orange-50 text-orange-500">
               <ShoppingBag size={43} strokeWidth={1.5} />
             </div>
@@ -137,8 +241,8 @@ const Cart = () => {
             </h2>
 
             <p className="mt-3 max-w-sm text-sm leading-6 text-gray-500">
-              Looks like you haven't added anything yet.
-              Explore our collection and find something you love.
+              Looks like you haven't added anything yet. Explore
+              our collection and find something you love.
             </p>
 
             <Link
@@ -180,8 +284,8 @@ const Cart = () => {
                       You're close to free delivery
                     </p>
                     <p className="mt-1 text-xs text-gray-500">
-                      Add ₹{remaining} more to unlock free delivery on
-                      orders above ₹500.
+                      Add ₹{remaining} more to unlock free delivery
+                      on orders above ₹500.
                     </p>
                   </>
                 )}
@@ -198,10 +302,8 @@ const Cart = () => {
             </div>
 
             <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
-
               {/* Cart Items */}
               <section className="space-y-4 lg:col-span-2">
-
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-bold text-gray-900">
                     Your Items
@@ -213,15 +315,20 @@ const Cart = () => {
                 </div>
 
                 {items.map((item) => {
-                  const price = Number(item.price) || 0;
+                  const product = item.product;
+
+                  if (!product) return null;
+
+                  const price = Number(product.price) || 0;
                   const quantity = Number(item.quantity) || 1;
 
                   const hasStock =
-                    item.stock !== undefined && item.stock !== null;
-                  const stock = Number(item.stock);
+                    product.stock !== undefined &&
+                    product.stock !== null;
 
-                  const image =
-                    item.images?.[0] || item.image || "";
+                  const stock = Number(product.stock);
+
+                  const image = product.images?.[0] || "";
 
                   return (
                     <article
@@ -229,16 +336,15 @@ const Cart = () => {
                       className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition hover:shadow-md sm:p-5"
                     >
                       <div className="flex gap-4 sm:gap-5">
-
                         {/* Product Image */}
                         <Link
-                          to={`/products/${item._id}`}
+                          to={`/products/${product._id}`}
                           className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-gray-100 sm:h-32 sm:w-32"
                         >
                           {image ? (
                             <img
                               src={image}
-                              alt={item.name || "Product"}
+                              alt={product.name || "Product"}
                               className="h-full w-full object-cover transition duration-300 hover:scale-105"
                             />
                           ) : (
@@ -250,11 +356,10 @@ const Cart = () => {
 
                         {/* Product Details */}
                         <div className="flex min-w-0 flex-1 flex-col">
-
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
                               <h3 className="line-clamp-2 font-bold leading-6 text-gray-900">
-                                {item.name || "Product"}
+                                {product.name || "Product"}
                               </h3>
 
                               <p className="mt-1 text-sm text-gray-500">
@@ -268,8 +373,8 @@ const Cart = () => {
 
                             <button
                               type="button"
-                              onClick={() => removeItem(item._id)}
-                              aria-label={`Remove ${item.name || "product"}`}
+                              onClick={() => removeItem(product._id)}
+                              aria-label={`Remove ${product.name || "product"}`}
                               className="shrink-0 rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-500"
                             >
                               <Trash2 size={18} />
@@ -277,7 +382,6 @@ const Cart = () => {
                           </div>
 
                           <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-4">
-
                             {/* Quantity Control */}
                             <div>
                               <p className="mb-2 text-xs font-medium text-gray-500">
@@ -285,11 +389,10 @@ const Cart = () => {
                               </p>
 
                               <div className="inline-flex items-center rounded-xl border border-gray-200 bg-white">
-
                                 <button
                                   type="button"
                                   onClick={() =>
-                                    updateQuantity(item._id, "decrease")
+                                    updateQuantity(product._id, "decrease")
                                   }
                                   disabled={quantity <= 1}
                                   aria-label="Decrease quantity"
@@ -305,11 +408,9 @@ const Cart = () => {
                                 <button
                                   type="button"
                                   onClick={() =>
-                                    updateQuantity(item._id, "increase")
+                                    updateQuantity(product._id, "increase")
                                   }
-                                  disabled={
-                                    hasStock && quantity >= stock
-                                  }
+                                  disabled={hasStock && quantity >= stock}
                                   aria-label="Increase quantity"
                                   className="rounded-r-xl p-2.5 text-gray-600 transition hover:bg-orange-50 hover:text-orange-600 disabled:cursor-not-allowed disabled:opacity-40"
                                 >
@@ -333,7 +434,6 @@ const Cart = () => {
                                 ₹{(price * quantity).toLocaleString("en-IN")}
                               </p>
                             </div>
-
                           </div>
                         </div>
                       </div>
@@ -353,7 +453,6 @@ const Cart = () => {
               {/* Order Summary */}
               <aside className="lg:sticky lg:top-24">
                 <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
-
                   <h2 className="text-xl font-extrabold text-gray-900">
                     Order Summary
                   </h2>
@@ -363,7 +462,6 @@ const Cart = () => {
                   </p>
 
                   <div className="my-6 space-y-4">
-
                     <div className="flex justify-between gap-3 text-sm">
                       <span className="text-gray-500">
                         Subtotal ({items.length} items)
@@ -414,10 +512,11 @@ const Cart = () => {
 
                   <button
                     type="button"
+                    disabled={checkingOut}
                     onClick={isLogin}
-                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3.5 font-bold text-white shadow-lg shadow-orange-500/20 transition hover:bg-orange-600 hover:shadow-orange-500/30"
+                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3.5 font-bold text-white shadow-lg shadow-orange-500/20 transition hover:bg-orange-600 hover:shadow-orange-500/30 disabled:opacity-60"
                   >
-                    Proceed to Checkout
+                    {checkingOut ? "Processing..." : "Proceed to Checkout"}
                     <ArrowRight size={19} />
                   </button>
 
@@ -445,22 +544,10 @@ const Cart = () => {
                   </div>
                 </div>
               </aside>
-
             </div>
           </>
         )}
       </main>
-
-      {/* Footer
-      <footer className="mt-8 border-t border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-6 text-xs text-gray-400 sm:flex-row sm:px-6 lg:px-8">
-          <Link to="/" className="text-lg font-extrabold text-gray-800">
-            Shop<span className="text-orange-500">Ease</span>
-          </Link>
-
-          <p>Happy shopping, every day.</p>
-        </div>
-      </footer> */}
     </div>
   );
 };

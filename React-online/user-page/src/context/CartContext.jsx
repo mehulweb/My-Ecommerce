@@ -1,53 +1,67 @@
-
 import { createContext, useContext, useState } from "react";
+import api from "../services/api";
+import toast from "react-hot-toast";
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
-  const addCart = (product) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find(
-        (item) => item._id === product._id
-      );
+  const addCart = async (product) => {
+  const existingItem = cartItems.find(
+    (item) => item._id === product._id
+  );
 
-      const stockAvailable =
-        product.stock !== undefined && product.stock !== null;
-      const stock = Number(product.stock);
+  const stock = Number(product.stock);
 
-      if (stockAvailable && stock <= 0) {
-        return prevItems;
-      }
+  if (stock <= 0) {
+    toast.error("Product out of stock");
+    return;
+  }
 
-      if (existingItem) {
-        return prevItems.map((item) => {
-          if (item._id !== product._id) return item;
+  const quantity = existingItem
+    ? Number(existingItem.quantity) + 1
+    : 1;
 
-          const quantity = Number(item.quantity) || 1;
+  if (quantity > stock) {
+    toast.error("Insufficient stock");
+    return;
+  }
 
-          return {
-            ...item,
-            quantity: stockAvailable
-              ? Math.min(quantity + 1, stock)
-              : quantity + 1,
-          };
-        });
-      }
+  const nextItems = existingItem
+    ? cartItems.map((item) =>
+        item._id === product._id
+          ? { ...item, quantity }
+          : item
+      )
+    : [...cartItems, { ...product, quantity: 1 }];
 
-      return [
-        ...prevItems,
-        {
-          ...product,
-          quantity: 1,
-        },
-      ];
+  setCartItems(nextItems);
+
+  await handelCart(nextItems);
+};
+
+const handelCart = async (items) => {
+  try {
+    const res = await api.post("/cart/addcart", {
+      items: items.map((item) => ({
+        _id: item._id,
+        quantity: Number(item.quantity),
+      })),
     });
-  };
+
+    if (res.data.success) {
+      toast.success("Added to cart");
+    }
+  } catch (error) {
+    console.log("Cart error:", error.response?.data || error);
+    toast.error(error.response?.data?.message || "Unable to add cart");
+  }
+};
 
   return (
     <CartContext.Provider
-      value={{ cartItems, setCartItems, addCart }}
+      value={{ cartItems, setCartItems, addCart, handelCart }}
     >
       {children}
     </CartContext.Provider>

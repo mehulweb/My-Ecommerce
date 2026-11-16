@@ -1,8 +1,8 @@
-import UserModel from "../model/user.model.js";
+import UserModel from "../models/user.model.js";
 import emailservice from "../services/email.service.js";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import PendingModel from './../model/pending.model.js';
+import PendingModel from './../models/pending.model.js';
 
 export const registerUser = async (req, res) => {
 

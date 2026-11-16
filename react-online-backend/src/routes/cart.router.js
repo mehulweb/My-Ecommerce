@@ -14,14 +14,14 @@ import { tokenVerification } from './../middleware/auth.middleware.js';
 
 const cartRouter = express.Router();
 
-cartRouter.post("/", tokenVerification, addToCart);
+cartRouter.post("/addcart", tokenVerification, addToCart);
 
-cartRouter.get("/", tokenVerification, getCart);
+cartRouter.get("/getCartItems", tokenVerification, getCart);
 
-cartRouter.patch("/quantity", tokenVerification, updateCartQuantity);
+cartRouter.patch("/updateCart", tokenVerification, updateCartQuantity);
 
-cartRouter.delete("/:productId", tokenVerification, removeFromCart);
+cartRouter.delete("/deleteCartItem/:productId", tokenVerification, removeFromCart);
 
-cartRouter.delete("/", tokenVerification, clearCart);
+cartRouter.delete("/clearCart", tokenVerification, clearCart);
 
 export default cartRouter;

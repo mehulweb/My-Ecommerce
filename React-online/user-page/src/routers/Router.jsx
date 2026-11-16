@@ -62,11 +62,11 @@ export const Routers = createBrowserRouter([
         element: <OrderHistory />,
       },
       {
-        path: "/address/:id",
+        path: "/address/:checkoutId",
         element: <AddressPage />,
       },
       {
-        path: "/payment/:id",
+        path: "/payment/:checkoutId",
         element: <Payment />,
       },
       {

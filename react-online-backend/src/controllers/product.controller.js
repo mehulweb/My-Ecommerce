@@ -1,6 +1,6 @@
 import ImageKit from "@imagekit/nodejs";
 import mongoose from "mongoose";
-import ProductModel from "../model/product.model.js";
+import ProductModel from "../models/product.model.js";
 
 const imagekit = new ImageKit({
     publicKey: process.env.IMAGEKIT_PUBLIC_KEY,

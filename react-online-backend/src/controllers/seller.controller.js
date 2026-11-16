@@ -1,9 +1,9 @@
-import SellerModel from "../model/seller.model.js";
+import SellerModel from "../models/seller.model.js";
 import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
-import ProductModel from "../model/product.model.js";
+import ProductModel from "../models/product.model.js";
 import mongoose from "mongoose";
-import Order from "../model/order.model.js";
+import Order from "../models/order.model.js";
 
 
 export const SellerRegister = async (req, res) => {
@@ -165,7 +165,7 @@ export const deleteSeller = async (req, res) => {
 export const newOrder = async (req, res) => {
 
     const sellerId = await req.sellerId.id;
-
+    
     try {
         const orders = await Order.find({ sellerId: sellerId });
 
