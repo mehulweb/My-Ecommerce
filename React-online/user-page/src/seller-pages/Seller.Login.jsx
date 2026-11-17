@@ -21,8 +21,8 @@ export default function SellerLogin() {
           toast("Invalid email or password");
         } else {
           if (res.status === 200) {
-            // console.log(res.data.userId);
-            document.cookie = `token=${res.data.token}`;
+            console.log(res.data);
+            document.cookie = `sellertoken=${res.data.sellertoken}`;
             Navigate(`/seller-dashboard/${res.data.sellerId}`);
           }
           toast("Login successful");

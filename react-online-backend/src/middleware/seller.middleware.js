@@ -3,13 +3,13 @@ import jwt from "jsonwebtoken";
 
 export const sellertokenVerification = (req, res, next) => {
     try {
-        const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
+        const sellertoken = req.cookies.sellertoken || req.headers.authorization?.split(' ')[1];
 
-        if (!token) {
+        if (!sellertoken) {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(sellertoken, process.env.JWT_SECRET);
         
         req.sellerId = decoded;
 
@@ -22,15 +22,15 @@ export const sellertokenVerification = (req, res, next) => {
 export const sellerrefreshToken = async (req, res) => {
 
     try {
-        const refreshtoken = req.cookies.refreshtoken || req.headers.authorization?.split(' ')[1];
+        const sellerrefreshtoken = req.cookies.sellerrefreshtoken || req.headers.authorization?.split(' ')[1];
 
-        if (!refreshtoken) {
+        if (!sellerrefreshtoken) {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        const accessToken = jwt.verify(refreshtoken, process.env.JWT_SECRET, { expiresIn: "15m" });
+        const accessToken = jwt.verify(sellerrefreshtoken, process.env.JWT_SECRET, { expiresIn: "15m" });
 
-        res.cookie("access token", accessToken)
+        res.cookie("selleraccesstoken", accessToken)
         res.status(200).json({ message: "Token refreshed successfully", token: accessToken })
 
     } catch (error) {

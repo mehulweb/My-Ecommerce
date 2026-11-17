@@ -34,7 +34,9 @@ const LoginPage = () => {
       });
 
       if (res.status === 200) {
-        document.cookie = `token=${res.data.token}; path=/; SameSite=Lax`;
+        console.log(res.data);
+        
+        document.cookie = `usertoken=${res.data.usertoken}; path=/; SameSite=Lax`;
 
         toast.success("Login successful!");
         navigate("/");

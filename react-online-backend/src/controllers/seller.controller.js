@@ -47,26 +47,26 @@ export const SellerLogin = async (req, res) => {
         }
 
 
-        const token = jwt.sign({ id: seller._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+        const sellerToken = jwt.sign({ id: seller._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-        const refreshToken = jwt.sign({ id: seller._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        const sellerRefreshToken = jwt.sign({ id: seller._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
 
         const sellerId = seller._id
 
-        res.cookie("refreshtoken", refreshToken);
+        res.cookie("sellerrefreshtoken", sellerRefreshToken);
 
-        res.cookie("token", token);
+        res.cookie("sellertoken", sellerToken);
 
         res.status(200).json({
             message: "login succesfully",
             sellerId,
-            token
+            sellertoken: sellerToken
         });
 
 
     } catch (error) {
-        res.status(500).json();
+        res.status(500).json({ message: "Error logging in seller" });
         console.log(error);
 
     }
@@ -74,8 +74,8 @@ export const SellerLogin = async (req, res) => {
 
 export const SellerLogout = async (req, res) => {
     try {
-        res.clearCookie("token");
-        res.clearCookie("refreshtoken");
+        res.clearCookie("sellertoken");
+        res.clearCookie("sellerrefreshtoken");
         res.status(200).json({ message: "Seller logged out successfully" });
     } catch (error) {
         res.status(500).json({ message: "Error logging out seller" });

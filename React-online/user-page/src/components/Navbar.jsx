@@ -26,7 +26,7 @@ const Navbar = () => {
     };
   }, []);
 
-  const token = getCookie("token");
+  const usertoken = getCookie("usertoken");
 
   if (
     location.pathname === "/login" ||
@@ -92,7 +92,7 @@ const Navbar = () => {
           </Link>
       </div>
       <nav className="w50 h-12 p-1 rounded-md font-medium flex items-center justify-between gap-2">
-        {token ? (
+        {usertoken ? (
           <>
            <NavLink
                 to="/cart"

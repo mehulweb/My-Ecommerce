@@ -625,6 +625,8 @@ const AddressPage = () => {
               <div className="mt-5 space-y-4 border-b border-slate-100 pb-5">
                 {checkout ? (
                   checkout.items.map((item, idx) => (
+                    console.log(item.image),
+                    
                     <div key={item.product || idx} className="flex gap-3">
                       <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 text-xl sm:h-16 sm:w-16 sm:text-2xl">
                         {item.image ? (

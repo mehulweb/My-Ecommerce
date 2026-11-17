@@ -84,16 +84,16 @@ export const userLogin = async (req, res) => {
             return res.status(401).json({ message: "Email or passsword is Invalid" })
         }
 
-        const token = jwt.sign({ userId: isUserExist._id }, process.env.JWT_SECRET, { expiresIn: "1h" })
+        const usertoken = jwt.sign({ userId: isUserExist._id }, process.env.JWT_SECRET, { expiresIn: "1h" })
 
-        const refreshToken = jwt.sign({ userId: isUserExist._id }, process.env.JWT_SECRET, { expiresIn: "7d" })
+        const userrefreshToken = jwt.sign({ userId: isUserExist._id }, process.env.JWT_SECRET, { expiresIn: "7d" })
 
         const userId = isUserExist._id;
 
-        res.cookie("token", token)
-        res.cookie("refreshtoken", refreshToken)
+        res.cookie("usertoken", usertoken)
+        res.cookie("userrefreshtoken", userrefreshToken)
 
-        res.status(200).json({ message: "Login successful", token, userId })
+        res.status(200).json({ message: "Login successful", usertoken: usertoken, userId: userId })
     }
     catch (error) {
         res.status(500).json({ message: "Error logging in user" })
@@ -103,8 +103,8 @@ export const userLogin = async (req, res) => {
 
 export const userLogout = async (req, res) => {
 
-    res.clearCookie("token")
-    res.clearCookie("refreshtoken")
+    res.clearCookie("usertoken")
+    res.clearCookie("userrefreshtoken")
     res.status(200).json({ message: "Logout successful" })
 
 };

@@ -5,9 +5,6 @@ export const userAddress = async (req, res) => {
     try {
         const userId = req.userId.userId;
 
-        console.log("userId:", userId);
-        console.log("body:", req.body);
-
         if (!userId) {
             return res.status(401).json({
                 message: "Please login and try again"

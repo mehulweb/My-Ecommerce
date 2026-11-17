@@ -141,7 +141,7 @@ const Cart = () => {
   const isLogin = async () => {
     const token = document.cookie
       .split("; ")
-      .find((row) => row.startsWith("token="));
+      .find((row) => row.startsWith("usertoken="));
 
     if (!token) {
       toast.error("Please login to proceed to checkout.");

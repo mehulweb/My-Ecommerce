@@ -59,7 +59,7 @@ export default function ProductPage() {
   const handleBuyNow = async () => {
     const token = document.cookie
       .split("; ")
-      .find((item) => item.startsWith("token="))
+      .find((item) => item.startsWith("usertoken="))
       ?.split("=");
 
     if (!token) {
